@@ -1,36 +1,60 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🧩 JSONLens — Explore, Inspect & Transform JSON Instantly
 
-## Getting Started
+**JSONLens** is a lightweight developer tool designed to help you:
+- 🔍 **Inspect** JSON structures visually  
+- 🌳 **Navigate** nested objects/arrays with a collapsible tree view  
+- 🛣️ **List all paths** in dot-notation (`user.address.city`)  
+- 🛠️ **Generate TypeScript types** automatically  
+- 📐 **View minimal schemas** for objects & arrays  
+- ⚡ **Work instantly** as you paste JSON (no backend, no login)
 
-First, run the development server:
+Perfect for backend devs, frontend devs, data engineers, or anyone dealing with messy JSON daily.
+
+---
+
+## ✨ Features
+
+### 🔥 1. Live JSON Parsing  
+Paste JSON → instantly see structure, paths, types, and schema.
+
+### 🌳 2. Tree View  
+A clean, collapsible explorer for deeply nested data.
+
+### 🛣️ 3. Path Explorer  
+Generate every path inside your data, ideal for mapping, validation, and debugging.
+
+### 🛠️ 4. TypeScript Generator  
+Automatically infer:
+- objects
+- arrays
+- unions
+- optional fields  
+Output a clean, readable `type Root = { ... }`.
+
+### 📐 5. Schema View  
+Minimal, human-friendly schema for quick understanding.
+
+### 🧪 6. 100% Client-Side  
+No backend.  
+Your data never leaves your machine.
+
+### 🎨 7. Clean, minimal UI  
+Modern TailwindCSS interface with smooth interactions & tabs.
+
+---
+
+## 🧰 Tech Stack
+
+- **Next.js 14**
+- **TypeScript**
+- **TailwindCSS**
+- **Canvas-free** (pure React + recursion)
+- Works entirely client-side
+
+---
+
+## 🚀 Getting Started
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+pnpm install
 pnpm dev
-# or
-bun dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
