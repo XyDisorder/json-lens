@@ -13,6 +13,7 @@ const JsonInput = ({ initialValue, onJsonChange }: JsonInputProps) => {
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [matchIndex, setMatchIndex] = useState(0);
+  const [copied, setCopied] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const highlightRef = useRef<HTMLPreElement>(null);
 
@@ -182,6 +183,24 @@ const JsonInput = ({ initialValue, onJsonChange }: JsonInputProps) => {
         </div>
       </div>
       <div className="relative">
+        <button
+          type="button"
+          title="Copy JSON"
+          aria-label="Copy JSON"
+          onClick={async () => {
+            if (typeof navigator === "undefined" || !navigator.clipboard) return;
+            try {
+              await navigator.clipboard.writeText(value);
+              setCopied(true);
+              setTimeout(() => setCopied(false), 1400);
+            } catch (err) {
+              console.error(err);
+            }
+          }}
+          className="absolute right-4 top-4 z-20 rounded-full border border-white/15 bg-black/40 px-2 py-1 text-xs text-slate-200 backdrop-blur transition hover:border-emerald-300 hover:text-white"
+        >
+          {copied ? "✓" : "⧉"}
+        </button>
         {normalizedSearch && (
           <pre
             ref={highlightRef}
