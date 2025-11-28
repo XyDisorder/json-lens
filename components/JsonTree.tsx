@@ -42,7 +42,7 @@ const JsonTree = ({ tree, searchTerm = "" }: JsonTreeProps) => {
     return (
       <Fragment key={node.path}>
         <div
-          className={`group rounded-xl px-3 py-2 text-sm transition-colors ${
+          className={`group rounded-xl px-3 py-2 text-sm transition-colors overflow-hidden ${
             isActive ? "bg-white/10" : matchesSearch ? "bg-emerald-500/10" : "hover:bg-white/5"
           }`}
           style={{ marginLeft: depth * 12 }}
@@ -64,23 +64,27 @@ const JsonTree = ({ tree, searchTerm = "" }: JsonTreeProps) => {
             ) : (
               <span className="flex h-5 w-5 items-center justify-center text-slate-600">•</span>
             )}
-            <div className="flex flex-1 items-center justify-between gap-3">
-              <div>
-                <p className="font-medium text-slate-100">{node.key}</p>
+            <div className="flex flex-1 items-center justify-between gap-3 min-w-0">
+              <div className="min-w-0 flex-1">
+                <p className="font-medium text-slate-100 truncate">{node.key}</p>
                 <p className="text-xs uppercase tracking-wide text-slate-500">{node.type}</p>
               </div>
               {node.type === "primitive" && (
-                <p className="text-xs text-emerald-300">{JSON.stringify(node.value)}</p>
+                <p className="text-xs text-emerald-300 truncate max-w-xs" title={JSON.stringify(node.value)}>
+                  {JSON.stringify(node.value)}
+                </p>
               )}
               {node.type === "array" && (
-                <p className="text-xs text-sky-300">[{node.children.length} items]</p>
+                <p className="text-xs text-sky-300 whitespace-nowrap">[{node.children.length} items]</p>
               )}
               {node.type === "object" && (
-                <p className="text-xs text-slate-400">{node.children.length} keys</p>
+                <p className="text-xs text-slate-400 whitespace-nowrap">{node.children.length} keys</p>
               )}
             </div>
           </div>
-          <p className="mt-1 text-xs text-slate-500">{node.path}</p>
+          <p className="mt-1 text-xs text-slate-500 truncate" title={node.path}>
+            {node.path}
+          </p>
         </div>
         {hasChildren && !isCollapsed && (
           <div className="border-l border-white/5 pl-4">
@@ -91,7 +95,7 @@ const JsonTree = ({ tree, searchTerm = "" }: JsonTreeProps) => {
     );
   };
 
-  return <div className="space-y-2 text-white">{renderNode(tree)}</div>;
+  return <div className="space-y-2 text-white overflow-x-auto">{renderNode(tree)}</div>;
 };
 
 export default JsonTree;
