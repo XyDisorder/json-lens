@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { JsonValue } from "@/lib/treeBuilder";
 
 type JsonInputProps = {
@@ -57,48 +57,81 @@ const JsonInput = ({ initialValue, onJsonChange }: JsonInputProps) => {
     });
   }, [normalizedSearch, value]);
 
-  const matchRefs = useRef<Array<HTMLSpanElement | null>>([]);
+  const matchRefs = useRef<Array<HTMLMarkElement | null>>([]);
+  const shouldSelectMatch = useRef(false);
 
-  const selectMatch = (index: number) => {
-    if (!matchCount || !normalizedSearch) return;
-    const textarea = textareaRef.current;
-    const overlay = highlightRef.current;
-    if (!textarea || !overlay) return;
-    const targetMark = matchRefs.current[index];
-    const wasTextareaFocused = typeof document !== "undefined" && document.activeElement === textarea;
+  // Réinitialiser les refs quand les segments changent
+  useMemo(() => {
+    matchRefs.current = new Array(matchCount).fill(null);
+  }, [matchCount]);
 
-    if (targetMark) {
-      const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(value, max));
-      const targetTop =
-        targetMark.offsetTop - overlay.offsetTop - overlay.clientHeight / 2 + targetMark.clientHeight / 2;
-      const maxScrollTop = textarea.scrollHeight - textarea.clientHeight;
-      const clampedTop = clamp(targetTop, 0, maxScrollTop);
-      overlay.scrollTop = clampedTop;
-      textarea.scrollTop = clampedTop;
+  const selectMatch = useCallback(
+    (index: number) => {
+      if (!matchCount || !normalizedSearch) return;
+      const textarea = textareaRef.current;
+      const overlay = highlightRef.current;
+      if (!textarea || !overlay) return;
+      const targetMark = matchRefs.current[index];
+      const wasTextareaFocused = typeof document !== "undefined" && document.activeElement === textarea;
 
-      const targetLeft =
-        targetMark.offsetLeft - overlay.offsetLeft - overlay.clientWidth / 2 + targetMark.clientWidth / 2;
-      const maxScrollLeft = textarea.scrollWidth - textarea.clientWidth;
-      const clampedLeft = clamp(targetLeft, 0, Math.max(0, maxScrollLeft));
-      overlay.scrollLeft = clampedLeft;
-      textarea.scrollLeft = clampedLeft;
+      if (targetMark) {
+        const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(value, max));
+
+        // Utiliser offsetTop/offsetLeft pour une position relative plus fiable
+        const markTop = targetMark.offsetTop;
+        const markLeft = targetMark.offsetLeft;
+        const markHeight = targetMark.offsetHeight;
+        const markWidth = targetMark.offsetWidth;
+
+        // Centrer la vue sur le mark
+        const targetScrollTop = markTop + markHeight / 2 - overlay.clientHeight / 2;
+        const targetScrollLeft = markLeft + markWidth / 2 - overlay.clientWidth / 2;
+
+        const maxScrollTop = Math.max(0, overlay.scrollHeight - overlay.clientHeight);
+        const maxScrollLeft = Math.max(0, overlay.scrollWidth - overlay.clientWidth);
+
+        const clampedTop = clamp(targetScrollTop, 0, maxScrollTop);
+        const clampedLeft = clamp(targetScrollLeft, 0, maxScrollLeft);
+
+        overlay.scrollTop = clampedTop;
+        textarea.scrollTop = clampedTop;
+        overlay.scrollLeft = clampedLeft;
+        textarea.scrollLeft = clampedLeft;
+      }
+
+      if (wasTextareaFocused) {
+        const start = matches[index];
+        const end = start + normalizedSearch.length;
+        requestAnimationFrame(() => {
+          if (textareaRef.current) {
+            textareaRef.current.focus({ preventScroll: true });
+            textareaRef.current.setSelectionRange(start, end);
+          }
+        });
+      }
+    },
+    [matchCount, normalizedSearch, matches],
+  );
+
+  // Sélectionner le match après que les refs soient mises à jour
+  useEffect(() => {
+    if (shouldSelectMatch.current && matchCount > 0 && normalizedSearch) {
+      // Attendre que les refs soient mises à jour
+      const timeoutId = setTimeout(() => {
+        if (matchRefs.current[safeMatchIndex]) {
+          selectMatch(safeMatchIndex);
+          shouldSelectMatch.current = false;
+        }
+      }, 0);
+      return () => clearTimeout(timeoutId);
     }
-
-    if (wasTextareaFocused) {
-      const start = matches[index];
-      const end = start + normalizedSearch.length;
-      requestAnimationFrame(() => {
-        textarea.focus({ preventScroll: true });
-        textarea.setSelectionRange(start, end);
-      });
-    }
-  };
+  }, [safeMatchIndex, matchCount, normalizedSearch, highlightSegments.length, selectMatch]);
 
   const goToMatch = (direction: 1 | -1) => {
     if (!matchCount) return;
+    shouldSelectMatch.current = true;
     setMatchIndex((prev) => {
       const next = (prev + direction + matchCount) % matchCount;
-      selectMatch(next);
       return next;
     });
   };
@@ -205,14 +238,17 @@ const JsonInput = ({ initialValue, onJsonChange }: JsonInputProps) => {
           <pre
             ref={highlightRef}
             aria-hidden
-            className="pointer-events-none absolute inset-0 z-0 max-h-[520px] overflow-auto rounded-2xl bg-slate-900/80 p-4 text-sm leading-6 text-transparent shadow-inner"
+            className="pointer-events-none absolute inset-0 z-0 max-h-[520px] overflow-auto rounded-2xl bg-slate-900/80 p-4 text-sm leading-6 text-transparent shadow-inner whitespace-pre-wrap break-words"
+            style={{
+              fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
+            }}
           >
             {highlightSegments.map((segment, index) =>
               segment.highlight ? (
                 <mark
-                  key={`${segment.text}-${index}`}
+                  key={`highlight-${segment.matchIndex}-${index}`}
                   ref={(element) => {
-                    if (segment.matchIndex !== null) {
+                    if (segment.matchIndex !== null && element) {
                       matchRefs.current[segment.matchIndex] = element;
                     }
                   }}
@@ -221,12 +257,11 @@ const JsonInput = ({ initialValue, onJsonChange }: JsonInputProps) => {
                   {segment.text}
                 </mark>
               ) : (
-                <span key={`${segment.text}-${index}`} className="text-transparent">
+                <span key={`text-${index}`} className="text-transparent">
                   {segment.text}
                 </span>
               ),
             )}
-            {"\n"}
           </pre>
         )}
         <textarea
@@ -243,7 +278,12 @@ const JsonInput = ({ initialValue, onJsonChange }: JsonInputProps) => {
             error ? "border-rose-400/70" : "border-white/10"
           }`}
           spellCheck={false}
-          style={{ backgroundColor: "rgba(15,23,42,0.8)" }}
+          style={{
+            backgroundColor: "rgba(15,23,42,0.8)",
+            fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
+            whiteSpace: "pre-wrap",
+            wordBreak: "break-word",
+          }}
         />
       </div>
       {error ? (
