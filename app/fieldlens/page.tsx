@@ -74,50 +74,65 @@ const FieldLensPage = () => {
           <p className="text-slate-400">Paste JSON - Explore - Generate Types</p>
         </header>
 
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div className="flex flex-wrap items-center gap-3 text-xs text-slate-400">
-            <span className="uppercase tracking-[0.2em] text-emerald-300">Panel layout</span>
+        <div className="flex flex-col gap-4">
+          <div className="flex items-center gap-2 border-b border-white/10 pb-2">
+            <span className="text-xs uppercase tracking-[0.2em] text-emerald-300">Mode</span>
             <div className="flex rounded-full border border-white/10 bg-black/30 p-1 text-white">
               <button
                 type="button"
-                onClick={() => setPanelMode("input")}
-                className={`rounded-full px-3 py-1 transition ${
-                  panelMode === "input" ? "bg-emerald-400/20 text-white" : "text-slate-400"
+                onClick={() => setCompareMode(false)}
+                className={`rounded-full px-4 py-1.5 text-xs font-medium transition ${
+                  !compareMode ? "bg-emerald-400/20 text-white" : "text-slate-400 hover:text-white"
                 }`}
               >
-                Focus Input
+                Inspector
               </button>
               <button
                 type="button"
-                onClick={() => setPanelMode("split")}
-                className={`rounded-full px-3 py-1 transition ${
-                  panelMode === "split" ? "bg-emerald-400/20 text-white" : "text-slate-400"
+                onClick={() => setCompareMode(true)}
+                className={`rounded-full px-4 py-1.5 text-xs font-medium transition ${
+                  compareMode ? "bg-amber-400/20 text-amber-300" : "text-slate-400 hover:text-amber-200"
                 }`}
               >
-                Split
-              </button>
-              <button
-                type="button"
-                onClick={() => setPanelMode("output")}
-                className={`rounded-full px-3 py-1 transition ${
-                  panelMode === "output" ? "bg-emerald-400/20 text-white" : "text-slate-400"
-                }`}
-              >
-                Focus Output
+                Compare
               </button>
             </div>
           </div>
-          <button
-            type="button"
-            onClick={() => setCompareMode(!compareMode)}
-            className={`rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-wide transition ${
-              compareMode
-                ? "border-amber-400/50 bg-amber-400/20 text-amber-300"
-                : "border-white/20 bg-black/30 text-white hover:border-amber-300 hover:text-amber-200"
-            }`}
-          >
-            {compareMode ? "Exit Compare" : "Compare JSON"}
-          </button>
+
+          {!compareMode && (
+            <div className="flex flex-wrap items-center gap-3 text-xs text-slate-400">
+              <span className="uppercase tracking-[0.2em] text-emerald-300">Panel layout</span>
+              <div className="flex rounded-full border border-white/10 bg-black/30 p-1 text-white">
+                <button
+                  type="button"
+                  onClick={() => setPanelMode("input")}
+                  className={`rounded-full px-3 py-1 transition ${
+                    panelMode === "input" ? "bg-emerald-400/20 text-white" : "text-slate-400"
+                  }`}
+                >
+                  Focus Input
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPanelMode("split")}
+                  className={`rounded-full px-3 py-1 transition ${
+                    panelMode === "split" ? "bg-emerald-400/20 text-white" : "text-slate-400"
+                  }`}
+                >
+                  Split
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPanelMode("output")}
+                  className={`rounded-full px-3 py-1 transition ${
+                    panelMode === "output" ? "bg-emerald-400/20 text-white" : "text-slate-400"
+                  }`}
+                >
+                  Focus Output
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
         {compareMode ? (
