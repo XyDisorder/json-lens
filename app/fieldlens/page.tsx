@@ -1,14 +1,14 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import JsonInput from "@/components/JsonInput";
-import JsonPaths from "@/components/JsonPaths";
-import JsonTree from "@/components/JsonTree";
-import SchemaView from "@/components/SchemaView";
-import Tabs from "@/components/Tabs";
-import TsTypesView from "@/components/TsTypesView";
-import JsonCompare from "@/components/JsonCompare";
-import JsonCompareInput from "@/components/JsonCompareInput";
+import JsonInput from "@/components/inspector/JsonInput";
+import JsonPaths from "@/components/inspector/JsonPaths";
+import JsonTree from "@/components/inspector/JsonTree";
+import SchemaView from "@/components/inspector/SchemaView";
+import Tabs from "@/components/ui/Tabs";
+import TsTypesView from "@/components/inspector/TsTypesView";
+import JsonCompare from "@/components/compare/JsonCompare";
+import JsonCompareInput from "@/components/compare/JsonCompareInput";
 import { buildTree, type JsonValue } from "@/lib/treeBuilder";
 import { jsonToPaths } from "@/lib/jsonToPaths";
 import { jsonToSchema } from "@/lib/jsonToSchema";
