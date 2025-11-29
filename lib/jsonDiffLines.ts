@@ -19,23 +19,73 @@ const findDiffForLine = (
   diffs: JsonDiff[],
   isLeft: boolean,
 ): JsonDiff | undefined => {
-  // Extraire les clés potentielles de la ligne
-  const keyMatch = line.match(/"([^"]+)"/);
-  if (!keyMatch) return undefined;
-
-  const key = keyMatch[1];
-  for (const diff of diffs) {
-    const pathKeys = diff.path.split(".").filter((k) => k !== "root" && !/^\d+$/.test(k));
-    if (pathKeys.includes(key)) {
-      if (isLeft && (diff.type === "removed" || diff.type === "modified" || diff.type === "unchanged")) {
-        return diff;
+  // Try to match JSON key-value pairs: "key": value
+  const keyMatch = line.match(/"([^"]+)"\s*:/);
+  
+  // Also try to match array values: "value" or value
+  const arrayValueMatch = line.match(/^\s*"([^"]+)"\s*,?\s*$/);
+  
+  let bestMatch: JsonDiff | undefined = undefined;
+  let bestMatchDepth = -1;
+  
+  // Filter diffs that are relevant for this side
+  const relevantDiffs = diffs.filter((diff) => {
+    if (isLeft) {
+      return diff.type === "removed" || diff.type === "modified";
+    } else {
+      return diff.type === "added" || diff.type === "modified";
+    }
+  });
+  
+  for (const diff of relevantDiffs) {
+    const pathParts = diff.path.split(".");
+    const lastPart = pathParts[pathParts.length - 1];
+    
+    // Check if this is an array index
+    const isArrayIndex = /^\d+$/.test(lastPart);
+    
+    if (keyMatch) {
+      // This is a key-value pair
+      const key = keyMatch[1];
+      const nonNumericParts = pathParts.filter((k) => k !== "root" && !/^\d+$/.test(k));
+      if (nonNumericParts.length === 0) continue;
+      
+      const lastKey = nonNumericParts[nonNumericParts.length - 1];
+      if (lastKey === key) {
+        // Prefer more specific matches (deeper paths)
+        if (nonNumericParts.length > bestMatchDepth) {
+          bestMatch = diff;
+          bestMatchDepth = nonNumericParts.length;
+        }
       }
-      if (!isLeft && (diff.type === "added" || diff.type === "modified" || diff.type === "unchanged")) {
-        return diff;
+    } else if (arrayValueMatch && isArrayIndex) {
+      // This is an array value - check if the value matches
+      const value = arrayValueMatch[1];
+      const diffValue = isLeft ? diff.leftValue : diff.rightValue;
+      
+      // Compare the string value
+      if (diffValue !== undefined) {
+        // Normalize both values for comparison
+        const normalizedLineValue = value;
+        let normalizedDiffValue: string;
+        if (typeof diffValue === "string") {
+          normalizedDiffValue = diffValue;
+        } else {
+          normalizedDiffValue = JSON.stringify(diffValue).replace(/^"|"$/g, "");
+        }
+        
+        if (normalizedLineValue === normalizedDiffValue) {
+          // Prefer more specific matches (deeper paths)
+          if (pathParts.length > bestMatchDepth) {
+            bestMatch = diff;
+            bestMatchDepth = pathParts.length;
+          }
+        }
       }
     }
   }
-  return undefined;
+  
+  return bestMatch;
 };
 
 export const computeLineDiffs = (
@@ -121,14 +171,77 @@ export const computeLineDiffs = (
         diff,
       });
     } else {
-      // Ligne modifiée
+      // Ligne différente - utiliser le type de diff réel si disponible
+      let type: LineDiff["type"] = "modified";
+      let diff: JsonDiff | undefined = undefined;
+      
+      // Prioriser le diff de droite pour "added", le diff de gauche pour "removed"
+      if (rightDiff && rightDiff.type === "added") {
+        type = "added";
+        diff = rightDiff;
+      } else if (leftDiff && leftDiff.type === "removed") {
+        type = "removed";
+        diff = leftDiff;
+      } else if (leftDiff && leftDiff.type === "modified") {
+        type = "modified";
+        diff = leftDiff;
+      } else if (rightDiff && rightDiff.type === "modified") {
+        type = "modified";
+        diff = rightDiff;
+      } else {
+        // Pas de diff trouvé directement, mais vérifier si on peut inférer le type
+        // Pour les valeurs de tableau, vérifier si c'est vraiment une modification ou une suppression/ajout
+        const leftIsArrayValue = leftLine && /^\s*"[^"]+"\s*,?\s*$/.test(leftLine.trim());
+        const rightIsArrayValue = rightLine && /^\s*"[^"]+"\s*,?\s*$/.test(rightLine.trim());
+        
+        // Chercher dans tous les diffs pour trouver un match basé sur la valeur
+        if (leftIsArrayValue || rightIsArrayValue) {
+          if (leftIsArrayValue && !rightIsArrayValue) {
+            // Left has array value but right doesn't - check if it's a removed element
+            const valueToMatch = leftLine.match(/^\s*"([^"]+)"\s*/)?.[1];
+            if (valueToMatch) {
+              for (const d of diffs) {
+                if (d.type === "removed" && d.leftValue !== undefined) {
+                  const normalizedDValue = typeof d.leftValue === "string" ? d.leftValue : JSON.stringify(d.leftValue).replace(/^"|"$/g, "");
+                  if (normalizedDValue === valueToMatch) {
+                    type = "removed";
+                    diff = d;
+                    break;
+                  }
+                }
+              }
+            }
+          } else if (!leftIsArrayValue && rightIsArrayValue) {
+            // Right has array value but left doesn't - check if it's an added element
+            const valueToMatch = rightLine.match(/^\s*"([^"]+)"\s*/)?.[1];
+            if (valueToMatch) {
+              for (const d of diffs) {
+                if (d.type === "added" && d.rightValue !== undefined) {
+                  const normalizedDValue = typeof d.rightValue === "string" ? d.rightValue : JSON.stringify(d.rightValue).replace(/^"|"$/g, "");
+                  if (normalizedDValue === valueToMatch) {
+                    type = "added";
+                    diff = d;
+                    break;
+                  }
+                }
+              }
+            }
+          }
+        }
+        
+        // Si on n'a toujours pas trouvé, utiliser modified par défaut
+        if (type === "modified" && !diff) {
+          diff = leftDiff || rightDiff;
+        }
+      }
+      
       result.push({
         leftLine,
         rightLine,
         leftLineNumber: i + 1,
         rightLineNumber: i + 1,
-        type: "modified",
-        diff: leftDiff || rightDiff,
+        type,
+        diff,
       });
     }
   }

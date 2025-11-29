@@ -47,19 +47,19 @@ const JsonCompare = ({ leftJson, rightJson }: JsonCompareProps) => {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-white/10 bg-black/20 p-4">
+      <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-black/20 p-4 shadow-sm dark:shadow-none">
         <JsonCompareFilters filters={filters} onToggle={toggleFilter} counts={counts} />
-        <div className="text-xs text-slate-500">
-          Showing: <span className="font-semibold text-white">{filteredDiffs.length}</span> /{" "}
-          <span className="text-slate-400">{diffs.length}</span>
+        <div className="text-xs text-gray-600 dark:text-slate-500">
+          Showing: <span className="font-semibold text-gray-900 dark:text-white">{filteredDiffs.length}</span> /{" "}
+          <span className="text-gray-500 dark:text-slate-400">{diffs.length}</span>
         </div>
       </div>
 
-      <div className="max-h-[480px] space-y-2 overflow-auto rounded-2xl bg-slate-950/50 p-4">
+      <div className="max-h-[480px] space-y-2 overflow-auto rounded-2xl bg-white dark:bg-slate-950/50 p-4 border border-gray-200 dark:border-transparent">
         {diffs.length === 0 ? (
-          <p className="text-center text-sm text-slate-400">No differences found — JSONs are identical</p>
+          <p className="text-center text-sm text-gray-600 dark:text-slate-400">No differences found — JSONs are identical</p>
         ) : filteredDiffs.length === 0 ? (
-          <p className="text-center text-sm text-slate-400">No differences match the selected filters</p>
+          <p className="text-center text-sm text-gray-600 dark:text-slate-400">No differences match the selected filters</p>
         ) : (
           filteredDiffs.map((diff, index) => <JsonDiffItem key={`${diff.path}-${index}`} diff={diff} index={index} />)
         )}

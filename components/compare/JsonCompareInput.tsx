@@ -94,13 +94,13 @@ const JsonCompareInput = ({
     <div className="space-y-4">
       {canShowDiff && (
         <div className="flex items-center justify-end gap-2">
-          <span className="text-xs text-slate-400">View mode:</span>
-          <div className="flex rounded-full border border-white/10 bg-black/30 p-1 text-white">
+          <span className="text-xs text-gray-600 dark:text-slate-400">View mode:</span>
+          <div className="flex rounded-full border border-gray-200 dark:border-white/10 bg-white dark:bg-black/30 p-1 text-gray-800 dark:text-white shadow-sm dark:shadow-none">
             <button
               type="button"
               onClick={() => setShowDiffView(false)}
               className={`rounded-full px-3 py-1 text-xs font-medium transition ${
-                !showDiffView ? "bg-emerald-400/20 text-white" : "text-slate-400 hover:text-white"
+                !showDiffView ? "bg-emerald-500 text-white dark:bg-emerald-400/20 dark:text-white" : "text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-white"
               }`}
             >
               Edit
@@ -109,7 +109,7 @@ const JsonCompareInput = ({
               type="button"
               onClick={() => setShowDiffView(true)}
               className={`rounded-full px-3 py-1 text-xs font-medium transition ${
-                showDiffView ? "bg-amber-400/20 text-amber-300" : "text-slate-400 hover:text-amber-200"
+                showDiffView ? "bg-amber-500 text-white dark:bg-amber-400/20 dark:text-amber-300" : "text-gray-500 dark:text-slate-400 hover:text-amber-600 dark:hover:text-amber-200"
               }`}
             >
               Diff

@@ -61,12 +61,12 @@ const JsonInput = ({ initialValue, onJsonChange, onTextChange }: JsonInputProps)
     <div className="space-y-4">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <p className="text-sm uppercase tracking-[0.2em] text-emerald-300">JSON INPUT</p>
-          <p className="text-sm text-slate-400">Paste JSON - updates propagate instantly.</p>
+          <p className="text-sm uppercase tracking-[0.2em] text-emerald-500 dark:text-emerald-300">JSON INPUT</p>
+          <p className="text-sm text-gray-600 dark:text-slate-400">Paste JSON - updates propagate instantly.</p>
         </div>
         <button
           type="button"
-          className="rounded-full border border-white/20 px-4 py-1 text-xs font-semibold uppercase tracking-wide text-white transition hover:border-emerald-300 hover:text-emerald-200"
+          className="rounded-full border border-gray-200 dark:border-white/20 px-4 py-1 text-xs font-semibold uppercase tracking-wide text-gray-800 dark:text-white transition hover:border-emerald-500 hover:bg-emerald-50 dark:hover:border-emerald-300 dark:hover:bg-emerald-500/20 hover:text-emerald-600 dark:hover:text-emerald-200 shadow-sm dark:shadow-none"
           onClick={handleFormat}
         >
           Format JSON
@@ -95,7 +95,7 @@ const JsonInput = ({ initialValue, onJsonChange, onTextChange }: JsonInputProps)
               console.error(err);
             }
           }}
-          className="absolute right-4 top-4 z-20 rounded-full border border-white/15 bg-black/40 px-2 py-1 text-xs text-slate-200 backdrop-blur transition hover:border-emerald-300 hover:text-white"
+          className="absolute right-4 top-4 z-20 rounded-full border border-gray-200 dark:border-white/15 bg-white dark:bg-black/40 px-2 py-1 text-xs text-gray-700 dark:text-slate-200 backdrop-blur transition hover:border-emerald-500 hover:bg-emerald-50 dark:hover:border-emerald-300 dark:hover:bg-emerald-500/20 hover:text-emerald-600 dark:hover:text-white shadow-sm dark:shadow-none"
         >
           {copied ? "✓" : "⧉"}
         </button>
@@ -117,12 +117,11 @@ const JsonInput = ({ initialValue, onJsonChange, onTextChange }: JsonInputProps)
               highlightRef.current.scrollLeft = event.currentTarget.scrollLeft;
             }
           }}
-          className={`relative z-10 h-[520px] w-full resize-none rounded-2xl border bg-slate-900/80 p-4 text-sm leading-6 text-slate-100 shadow-inner outline-none transition focus:ring-2 focus:ring-emerald-400/60 ${
-            error ? "border-rose-400/70" : "border-white/10"
+          className={`relative z-10 h-[520px] w-full resize-none rounded-2xl border bg-white dark:bg-slate-900/80 p-4 text-sm leading-6 text-gray-900 dark:text-slate-100 shadow-inner outline-none transition focus:ring-2 focus:ring-emerald-400/60 ${
+            error ? "border-rose-400/70" : "border-gray-200 dark:border-white/10"
           }`}
           spellCheck={false}
           style={{
-            backgroundColor: "rgba(15,23,42,0.8)",
             fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
             whiteSpace: "pre-wrap",
             wordBreak: "break-word",
@@ -130,9 +129,9 @@ const JsonInput = ({ initialValue, onJsonChange, onTextChange }: JsonInputProps)
         />
       </div>
       {error ? (
-        <p className="text-sm text-rose-300">Syntax error: {error}</p>
+        <p className="text-sm text-rose-500 dark:text-rose-300">Syntax error: {error}</p>
       ) : (
-        <p className="text-xs text-slate-500">Valid JSON ready</p>
+        <p className="text-xs text-gray-500 dark:text-slate-500">Valid JSON ready</p>
       )}
     </div>
   );

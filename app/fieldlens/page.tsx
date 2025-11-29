@@ -10,11 +10,13 @@ import TsTypesView from "@/components/inspector/TsTypesView";
 import JsonCompare from "@/components/compare/JsonCompare";
 import JsonCompareInput from "@/components/compare/JsonCompareInput";
 import Footer from "@/components/ui/Footer";
+import ThemeToggle from "@/components/ui/ThemeToggle";
 import { buildTree, type JsonValue } from "@/lib/treeBuilder";
 import { jsonToPaths } from "@/lib/jsonToPaths";
 import { jsonToSchema } from "@/lib/jsonToSchema";
 import { jsonToTs } from "@/lib/jsonToTs";
 import { compareJson } from "@/lib/jsonCompare";
+import { compareJsonText } from "@/lib/jsonCompareText";
 
 const defaultJson = {
   name: "FieldLens",
@@ -108,8 +110,20 @@ const FieldLensPage = () => {
   const schema = useMemo(() => jsonToSchema(jsonValue), [jsonValue]);
   const compareDiffs = useMemo(() => {
     if (!leftCompareJson || !rightCompareJson) return [];
-    return compareJson(leftCompareJson, rightCompareJson);
-  }, [leftCompareJson, rightCompareJson]);
+    const objectDiffs = compareJson(leftCompareJson, rightCompareJson);
+    // Also compare text to detect duplicate keys
+    const textDiffs = compareJsonText(leftCompareText, rightCompareText);
+    // Merge diffs, prioritizing object diffs for same paths
+    const mergedDiffs = [...objectDiffs];
+    textDiffs.forEach((textDiff) => {
+      // Only add text diff if there's no object diff for the same path
+      const hasObjectDiff = objectDiffs.some((objDiff) => objDiff.path === textDiff.path);
+      if (!hasObjectDiff) {
+        mergedDiffs.push(textDiff);
+      }
+    });
+    return mergedDiffs;
+  }, [leftCompareJson, rightCompareJson, leftCompareText, rightCompareText]);
   const handleInspectorTextChange = (text: string) => {
     setInspectorJsonText(text);
     if (typeof window !== "undefined") {
@@ -129,21 +143,21 @@ const FieldLensPage = () => {
 
   const handleLeftCompareChange = (value: JsonValue | null) => {
     setLeftCompareJson(value);
+    // Only update text if we have a valid JSON value
+    // Don't clear text when JSON is invalid (user is still typing)
     if (value) {
       const jsonString = JSON.stringify(value, null, 2);
       setLeftCompareText(jsonString);
-    } else {
-      setLeftCompareText("");
     }
   };
 
   const handleRightCompareChange = (value: JsonValue | null) => {
     setRightCompareJson(value);
+    // Only update text if we have a valid JSON value
+    // Don't clear text when JSON is invalid (user is still typing)
     if (value) {
       const jsonString = JSON.stringify(value, null, 2);
       setRightCompareText(jsonString);
-    } else {
-      setRightCompareText("");
     }
   };
 
@@ -151,20 +165,25 @@ const FieldLensPage = () => {
     <main className="min-h-screen">
       <div className="mx-auto max-w-6xl space-y-10 px-6 py-12">
         <header className="space-y-3">
-          <p className="text-xs uppercase tracking-[0.4em] text-emerald-300">Developer Tool</p>
-          <h1 className="text-4xl font-semibold text-white">FieldLens — JSON Inspector</h1>
-          <p className="text-slate-400">Paste JSON - Explore - Generate Types</p>
+          <div className="flex items-start justify-between">
+            <div className="space-y-3">
+              <p className="text-xs uppercase tracking-[0.4em] text-emerald-500 dark:text-emerald-300">Developer Tool</p>
+              <h1 className="text-4xl font-semibold text-gray-900 dark:text-white">FieldLens — JSON Inspector</h1>
+              <p className="text-gray-600 dark:text-slate-400">Paste JSON - Explore - Generate Types</p>
+            </div>
+            <ThemeToggle />
+          </div>
         </header>
 
         <div className="flex flex-col gap-4">
-          <div className="flex items-center gap-2 border-b border-white/10 pb-2">
-            <span className="text-xs uppercase tracking-[0.2em] text-emerald-300">Mode</span>
-            <div className="flex rounded-full border border-white/10 bg-black/30 p-1 text-white">
+          <div className="flex items-center gap-2 border-b border-gray-200 dark:border-white/10 pb-2">
+            <span className="text-xs uppercase tracking-[0.2em] text-emerald-500 dark:text-emerald-300">Mode</span>
+            <div className="flex rounded-full border border-gray-200 dark:border-white/10 bg-white dark:bg-black/30 p-1 text-gray-800 dark:text-white shadow-sm dark:shadow-none">
               <button
                 type="button"
                 onClick={() => setCompareMode(false)}
-                className={`rounded-full px-4 py-1.5 text-xs font-medium transition ${
-                  !compareMode ? "bg-emerald-400/20 text-white" : "text-slate-400 hover:text-white"
+                  className={`rounded-full px-4 py-1.5 text-xs font-medium transition ${
+                  !compareMode ? "bg-emerald-500 text-white dark:bg-emerald-400/20 dark:text-white" : "text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-white"
                 }`}
               >
                 Inspector
@@ -172,8 +191,8 @@ const FieldLensPage = () => {
               <button
                 type="button"
                 onClick={() => setCompareMode(true)}
-                className={`rounded-full px-4 py-1.5 text-xs font-medium transition ${
-                  compareMode ? "bg-amber-400/20 text-amber-300" : "text-slate-400 hover:text-amber-200"
+                  className={`rounded-full px-4 py-1.5 text-xs font-medium transition ${
+                  compareMode ? "bg-amber-500 text-white dark:bg-amber-400/20 dark:text-amber-300" : "text-gray-500 dark:text-slate-400 hover:text-amber-600 dark:hover:text-amber-200"
                 }`}
               >
                 Compare
@@ -182,14 +201,14 @@ const FieldLensPage = () => {
           </div>
 
           {!compareMode && (
-            <div className="flex flex-wrap items-center gap-3 text-xs text-slate-400">
-              <span className="uppercase tracking-[0.2em] text-emerald-300">Panel layout</span>
-              <div className="flex rounded-full border border-white/10 bg-black/30 p-1 text-white">
+            <div className="flex flex-wrap items-center gap-3 text-xs text-gray-600 dark:text-slate-400">
+              <span className="uppercase tracking-[0.2em] text-emerald-500 dark:text-emerald-300">Panel layout</span>
+              <div className="flex rounded-full border border-gray-200 dark:border-white/10 bg-white dark:bg-black/30 p-1 text-gray-800 dark:text-white shadow-sm dark:shadow-none">
                 <button
                   type="button"
                   onClick={() => setPanelMode("input")}
                   className={`rounded-full px-3 py-1 transition ${
-                    panelMode === "input" ? "bg-emerald-400/20 text-white" : "text-slate-400"
+                    panelMode === "input" ? "bg-emerald-500 text-white dark:bg-emerald-400/20 dark:text-white" : "text-gray-500 dark:text-slate-400"
                   }`}
                 >
                   Focus Input
@@ -198,7 +217,7 @@ const FieldLensPage = () => {
                   type="button"
                   onClick={() => setPanelMode("split")}
                   className={`rounded-full px-3 py-1 transition ${
-                    panelMode === "split" ? "bg-emerald-400/20 text-white" : "text-slate-400"
+                    panelMode === "split" ? "bg-emerald-500 text-white dark:bg-emerald-400/20 dark:text-white" : "text-gray-500 dark:text-slate-400"
                   }`}
                 >
                   Split
@@ -207,7 +226,7 @@ const FieldLensPage = () => {
                   type="button"
                   onClick={() => setPanelMode("output")}
                   className={`rounded-full px-3 py-1 transition ${
-                    panelMode === "output" ? "bg-emerald-400/20 text-white" : "text-slate-400"
+                    panelMode === "output" ? "bg-emerald-500 text-white dark:bg-emerald-400/20 dark:text-white" : "text-gray-500 dark:text-slate-400"
                   }`}
                 >
                   Focus Output
@@ -219,7 +238,7 @@ const FieldLensPage = () => {
 
         {compareMode ? (
           <section className="space-y-6">
-            <div className="rounded-3xl border border-white/10 bg-surface-raised/80 p-6 shadow-glow">
+            <div className="rounded-3xl border border-gray-200 dark:border-white/10 bg-white dark:bg-surface-raised/80 p-6 shadow-sm dark:shadow-glow">
               <JsonCompareInput
                 onLeftChange={handleLeftCompareChange}
                 onRightChange={handleRightCompareChange}
@@ -231,9 +250,9 @@ const FieldLensPage = () => {
               />
             </div>
             {leftCompareJson && rightCompareJson && (
-              <div className="rounded-3xl border border-white/10 bg-surface-raised/80 p-6 shadow-glow">
+              <div className="rounded-3xl border border-gray-200 dark:border-white/10 bg-white dark:bg-surface-raised/80 p-6 shadow-sm dark:shadow-glow">
                 <div className="mb-4">
-                  <p className="text-sm uppercase tracking-[0.2em] text-amber-300">DIFFERENCES</p>
+                  <p className="text-sm uppercase tracking-[0.2em] text-amber-600 dark:text-amber-300">DIFFERENCES</p>
                   <p className="text-xs text-slate-400">Visual comparison of the two JSON structures</p>
                 </div>
                 <JsonCompare leftJson={leftCompareJson} rightJson={rightCompareJson} />
@@ -247,7 +266,7 @@ const FieldLensPage = () => {
             }`}
           >
             <div
-              className={`rounded-3xl border border-white/10 bg-surface-raised/80 p-6 shadow-glow ${
+              className={`rounded-3xl border border-gray-200 dark:border-white/10 bg-white dark:bg-surface-raised/80 p-6 shadow-sm dark:shadow-glow ${
                 panelMode === "output" ? "hidden" : ""
               }`}
             >
@@ -259,20 +278,20 @@ const FieldLensPage = () => {
             </div>
 
             <div
-              className={`rounded-3xl border border-white/10 bg-surface-raised/80 p-6 shadow-glow ${
+              className={`rounded-3xl border border-gray-200 dark:border-white/10 bg-white dark:bg-surface-raised/80 p-6 shadow-sm dark:shadow-glow ${
                 panelMode === "input" ? "hidden" : ""
               }`}
             >
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <Tabs tabs={tabs} activeTab={activeTab} onChange={setActiveTab} />
-                <label className="flex w-full max-w-xs items-center gap-2 rounded-full border border-white/10 bg-black/20 px-3 py-1 text-sm text-slate-300 focus-within:border-emerald-300 focus-within:text-white">
-                  <span className="text-xs uppercase tracking-[0.2em] text-slate-500">Search</span>
+                <label className="flex w-full max-w-xs items-center gap-2 rounded-full border border-gray-200 dark:border-white/10 bg-white dark:bg-black/20 px-3 py-1 text-sm text-gray-700 dark:text-slate-300 focus-within:border-emerald-500 dark:focus-within:border-emerald-300 focus-within:text-gray-900 dark:focus-within:text-white shadow-sm dark:shadow-none">
+                  <span className="text-xs uppercase tracking-[0.2em] text-gray-500 dark:text-slate-500">Search</span>
                   <input
                     type="text"
                     value={searchTerm}
                     onChange={(event) => setSearchTerm(event.target.value)}
                     placeholder="key, path, value..."
-                    className="w-full bg-transparent text-white placeholder:text-slate-500 focus:outline-none"
+                    className="w-full bg-transparent text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-slate-500 focus:outline-none"
                   />
                 </label>
               </div>

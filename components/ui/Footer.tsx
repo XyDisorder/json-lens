@@ -7,27 +7,27 @@ const Footer = () => {
   const githubUrl = "https://github.com/XyDisorder/json-lens"; // Update with your GitHub URL
 
   return (
-    <footer className="border-t border-white/10 bg-black/20">
+    <footer className="border-t border-gray-200 dark:border-white/10 bg-white dark:bg-black/20">
       <div className="mx-auto max-w-6xl px-6 py-12">
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
           {/* About */}
           <div className="space-y-3">
-            <h3 className="text-sm font-semibold uppercase tracking-[0.2em] text-emerald-300">FieldLens</h3>
-            <p className="text-xs text-slate-400">
+            <h3 className="text-sm font-semibold uppercase tracking-[0.2em] text-emerald-500 dark:text-emerald-300">FieldLens</h3>
+            <p className="text-xs text-gray-600 dark:text-slate-400">
               Developer tool to inspect, analyze and transform your JSON data instantly.
             </p>
-            <p className="text-xs text-slate-500">© {currentYear} FieldLens. All rights reserved.</p>
+            <p className="text-xs text-gray-500 dark:text-slate-500">© {currentYear} FieldLens. All rights reserved.</p>
           </div>
 
           {/* GitHub Section - Prominent */}
           <div className="space-y-3">
-            <h3 className="text-sm font-semibold uppercase tracking-[0.2em] text-emerald-300">GitHub & Contact</h3>
+            <h3 className="text-sm font-semibold uppercase tracking-[0.2em] text-emerald-500 dark:text-emerald-300">GitHub & Contact</h3>
             <nav className="flex flex-col gap-2">
               <a
                 href={githubUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 text-xs text-slate-400 transition hover:text-emerald-300"
+                className="flex items-center gap-2 text-xs text-gray-700 dark:text-slate-400 transition hover:text-emerald-500 dark:hover:text-emerald-300"
               >
                 <svg
                   className="h-4 w-4"
@@ -45,7 +45,7 @@ const Footer = () => {
               </a>
               <Link
                 href="/contact"
-                className="flex items-center gap-2 text-xs text-slate-400 transition hover:text-emerald-300"
+                className="flex items-center gap-2 text-xs text-gray-700 dark:text-slate-400 transition hover:text-emerald-500 dark:hover:text-emerald-300"
               >
                 <svg
                   className="h-4 w-4"
@@ -64,15 +64,15 @@ const Footer = () => {
                 <span>Contact</span>
               </Link>
             </nav>
-            <p className="text-xs text-slate-500">
-              Made with <span className="text-rose-400">❤️</span> by XyDisorder
+            <p className="text-xs text-gray-500 dark:text-slate-500">
+              Made with <span className="text-rose-500 dark:text-rose-400">❤️</span> by XyDisorder
             </p>
             <div className="flex items-center gap-2">
               <a
                 href={githubUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="rounded-full border border-white/10 bg-black/30 px-2 py-1 text-xs font-medium text-slate-300 transition hover:border-emerald-500/50 hover:bg-emerald-500/20 hover:text-emerald-300"
+                className="rounded-full border border-gray-200 dark:border-white/10 bg-white dark:bg-black/30 px-2 py-1 text-xs font-medium text-gray-700 dark:text-slate-300 transition hover:border-emerald-500 hover:bg-emerald-50 dark:hover:border-emerald-500/50 dark:hover:bg-emerald-500/20 hover:text-emerald-600 dark:hover:text-emerald-300 shadow-sm dark:shadow-none"
               >
                 ⭐ Star
               </a>
@@ -80,7 +80,7 @@ const Footer = () => {
                 href={`${githubUrl}/fork`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="rounded-full border border-white/10 bg-black/30 px-2 py-1 text-xs font-medium text-slate-300 transition hover:border-emerald-500/50 hover:bg-emerald-500/20 hover:text-emerald-300"
+                className="rounded-full border border-gray-200 dark:border-white/10 bg-white dark:bg-black/30 px-2 py-1 text-xs font-medium text-gray-700 dark:text-slate-300 transition hover:border-emerald-500 hover:bg-emerald-50 dark:hover:border-emerald-500/50 dark:hover:bg-emerald-500/20 hover:text-emerald-600 dark:hover:text-emerald-300 shadow-sm dark:shadow-none"
               >
                 🍴 Fork
               </a>
@@ -89,29 +89,29 @@ const Footer = () => {
 
           {/* Legal */}
           <div className="space-y-3">
-            <h3 className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-300">Legal</h3>
+            <h3 className="text-sm font-semibold uppercase tracking-[0.2em] text-gray-800 dark:text-slate-300">Legal</h3>
             <nav className="flex flex-col gap-2">
               <Link
                 href="/legal-notice"
-                className="text-xs text-slate-400 transition hover:text-emerald-300"
+                className="text-xs text-gray-700 dark:text-slate-400 transition hover:text-emerald-500 dark:hover:text-emerald-300"
               >
                 Legal Notice
               </Link>
               <Link
                 href="/privacy-policy"
-                className="text-xs text-slate-400 transition hover:text-emerald-300"
+                className="text-xs text-gray-700 dark:text-slate-400 transition hover:text-emerald-500 dark:hover:text-emerald-300"
               >
                 Privacy Policy
               </Link>
               <Link
                 href="/terms-of-service"
-                className="text-xs text-slate-400 transition hover:text-emerald-300"
+                className="text-xs text-gray-700 dark:text-slate-400 transition hover:text-emerald-500 dark:hover:text-emerald-300"
               >
                 Terms of Service
               </Link>
               <Link
                 href="/cookie-policy"
-                className="text-xs text-slate-400 transition hover:text-emerald-300"
+                className="text-xs text-gray-700 dark:text-slate-400 transition hover:text-emerald-500 dark:hover:text-emerald-300"
               >
                 Cookie Policy
               </Link>
@@ -120,15 +120,15 @@ const Footer = () => {
 
           {/* Privacy & Security */}
           <div className="space-y-3">
-            <h3 className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-300">Security</h3>
-            <div className="space-y-2 text-xs text-slate-400">
+            <h3 className="text-sm font-semibold uppercase tracking-[0.2em] text-gray-800 dark:text-slate-300">Security</h3>
+            <div className="space-y-2 text-xs text-gray-700 dark:text-slate-400">
               <p>
-                <span className="font-medium text-emerald-300">✓ 100% Client-Side</span>
+                <span className="font-medium text-emerald-500 dark:text-emerald-300">✓ 100% Client-Side</span>
                 <br />
                 Your data never leaves your machine. No data is sent to any server.
               </p>
               <p>
-                <span className="font-medium text-emerald-300">✓ Open Source</span>
+                <span className="font-medium text-emerald-500 dark:text-emerald-300">✓ Open Source</span>
                 <br />
                 Source code available and auditable.
               </p>
@@ -140,18 +140,18 @@ const Footer = () => {
         <div className="mt-8 border-t border-white/5 pt-8">
           <div className="flex flex-col items-center justify-between gap-4 text-xs text-slate-500 sm:flex-row">
             <p>
-              FieldLens is a free and open source tool. Made with <span className="text-rose-400">❤️</span> No personal data is collected.
+              FieldLens is a free and open source tool. Made with <span className="text-rose-500 dark:text-rose-400">❤️</span> No personal data is collected.
             </p>
             <div className="flex gap-4">
               <a
                 href={githubUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="font-medium text-slate-400 transition hover:text-emerald-300"
+                className="font-medium text-gray-700 dark:text-slate-400 transition hover:text-emerald-500 dark:hover:text-emerald-300"
               >
                 GitHub
               </a>
-              <Link href="/contact" className="font-medium text-slate-400 transition hover:text-emerald-300">
+              <Link href="/contact" className="font-medium text-gray-700 dark:text-slate-400 transition hover:text-emerald-500 dark:hover:text-emerald-300">
                 Contact
               </Link>
             </div>
